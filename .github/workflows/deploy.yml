@@ -1,0 +1,53 @@
+name: Deploy PacPac to Web
+
+on:
+  push:
+    branches:
+      - master # Triggers when code changes are pushed to the master branch
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install love.js Globally
+        run: npm install -g love.js
+
+      - name: Create .love Package
+        # Bundles all .lua scripts, audio files, and fonts in the repository root
+        run: zip -r game.love *.lua *.wav *.ttf -x ".*" ".github/*"
+
+      - name: Compile to HTML5 WebAssembly
+        # Translates the game payload into web assets inside a folder called "dist"
+        run: love.js game.love dist --title "Sakwo's PacPac Web Game" --memory 33554432
+
+      - name: Setup GitHub Pages Environment
+        uses: actions/configure-pages@v4
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
