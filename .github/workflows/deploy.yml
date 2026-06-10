@@ -33,15 +33,14 @@ jobs:
         run: npm install -g love.js
 
       - name: Create .love Package
-        # Pulls the files safely out of the src subfolder, renames them, and packages them at the root level
+        # Safely renames the files at the current root layer, then builds the archive
         run: |
-          cp src/pacpac.lua ./main.lua
-          cp src/pacpac_conf.lua ./conf.lua
-          cp -r src/* .
-          zip -r game.love . -x ".*" ".github/*" "game.love" "dist/*" "src/*"
+          cp pacpac.lua main.lua
+          cp pacpac_conf.lua conf.lua
+          zip -r game.love . -x ".*" ".github/*" "game.love" "dist/*"
 
       - name: Compile to HTML5 WebAssembly
-        # Compiles using your working single-threaded compatibility configuration
+        # Translates the game payload into web assets inside a folder called "dist"
         run: love.js -c game.love dist --title "Sakwo's PacPac Web Game" --memory 33554432
 
       - name: Setup GitHub Pages Environment
