@@ -33,10 +33,8 @@ jobs:
         run: npm install -g love.js
 
       - name: Create .love Package
-        # Changes the path context directly into the src directory where the game files sit
-        run: |
-          cd src
-          zip -r ../game.love . -x ".*"
+        # Aggregates everything in the root folder cleanly into the required payload shape
+        run: zip -r game.love . -x ".*" ".github/*"
 
       - name: Compile to HTML5 WebAssembly
         # Translates the game payload into web assets inside a folder called "dist"
