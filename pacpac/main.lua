@@ -111,35 +111,43 @@ function PacSource.new(filename)
   local pac_src = {}
   pac_src.src = love.audio.newSource(filename, 'static')
   pac_src.filename = filename
+  pac_src.paused = false
   return setmetatable(pac_src, PacSource)
 end
 
--- This is a workaround for an infrequent but annoying audio bug where clips
--- simply stop playing and need to be recreated as new objects.
+-- love.js does not reliably expose Source:isPaused() / Source:isStopped().
+-- Use Source:isPlaying() plus our own paused flag so the HTML5 build works.
 function PacSource:play()
-  if self.src:isPaused() or self.src:isStopped() then
+  if not self.src:isPlaying() then
     self.src:play()
+    self.paused = false
   end
-  if self.src:isPaused() then
-    -- Here is the workaround. Theoretically, this block should never happen.
-    -- But it does.
+
+  -- Workaround for an infrequent audio bug where clips simply stop playing
+  -- and need to be recreated as new objects.
+  if not self.src:isPlaying() then
     local is_looping = self.src:isLooping()
     self.src = love.audio.newSource(self.filename, 'static')
     self.src:setLooping(is_looping)
     self.src:play()
+    self.paused = false
   end
 end
 
 function PacSource:pause()
-  if not self.src:isPaused() and not self.src:isStopped() then
+  if self.src:isPlaying() then
     self.src:pause()
+    self.paused = true
   end
 end
 
 function PacSource:setLooping(should_loop) self.src:setLooping(should_loop) end
-function PacSource:isPaused() return self.src:isPaused() end
+function PacSource:isPaused() return self.paused or not self.src:isPlaying() end
 function PacSource:setVolume(volume) self.src:setVolume(volume) end
-function PacSource:stop() self.src:stop() end
+function PacSource:stop()
+  self.src:stop()
+  self.paused = false
+end
 function PacSource:rewind() self.src:rewind() end
 
 
