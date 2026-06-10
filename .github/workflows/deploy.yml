@@ -33,8 +33,10 @@ jobs:
         run: npm install -g love.js
 
       - name: Create .love Package
-        # This fix accurately targets and zips the files inside the src folder
-        run: zip -r game.love main.lua conf.lua src/ -x ".*" ".github/*"
+        # Changes the path context directly into the src directory where the game files sit
+        run: |
+          cd src
+          zip -r ../game.love . -x ".*"
 
       - name: Compile to HTML5 WebAssembly
         # Translates the game payload into web assets inside a folder called "dist"
