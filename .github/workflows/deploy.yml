@@ -23,8 +23,6 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          ref: master # This forces GitHub to download the actual game code files
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -35,8 +33,8 @@ jobs:
         run: npm install -g love.js
 
       - name: Create .love Package
-        # Bundles all .lua scripts, audio files, and fonts in the repository root
-        run: zip -r game.love *.lua *.wav *.ttf -x ".*" ".github/*"
+        # This fix accurately targets and zips the files inside the src folder
+        run: zip -r game.love main.lua conf.lua src/ -x ".*" ".github/*"
 
       - name: Compile to HTML5 WebAssembly
         # Translates the game payload into web assets inside a folder called "dist"
