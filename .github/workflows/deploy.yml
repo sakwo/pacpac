@@ -3,7 +3,7 @@ name: Deploy PacPac to Web
 on:
   push:
     branches:
-      - master
+      - master # Explicitly targets your active branch
 
 permissions:
   contents: read
@@ -33,14 +33,20 @@ jobs:
         run: npm install -g love.js
 
       - name: Create .love Package
-        # Safely renames the files at the current root layer, then builds the archive
+        # Dynamically checks for file locations to guarantee matching paths before building the archive
         run: |
-          cp pacpac.lua main.lua
-          cp pacpac_conf.lua conf.lua
-          zip -r game.love . -x ".*" ".github/*" "game.love" "dist/*"
+          if [ -f "pacpac.lua" ]; then
+            cp pacpac.lua main.lua
+            cp pacpac_conf.lua conf.lua
+          elif [ -f "src/pacpac.lua" ]; then
+            cp src/pacpac.lua ./main.lua
+            cp src/pacpac_conf.lua ./conf.lua
+            cp -r src/* .
+          fi
+          zip -r game.love . -x ".*" ".github/*" "game.love" "dist/*" "src/*"
 
       - name: Compile to HTML5 WebAssembly
-        # Translates the game payload into web assets inside a folder called "dist"
+        # Compiles using the compatibility flag
         run: love.js -c game.love dist --title "Sakwo's PacPac Web Game" --memory 33554432
 
       - name: Setup GitHub Pages Environment
