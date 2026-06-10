@@ -33,16 +33,15 @@ jobs:
         run: npm install -g love.js
 
       - name: Create .love Package
-        # Changes path to the repository directory root explicitly before packing
+        # Safely duplicates the non-standard files into the names Love2D requires before zipping
         run: |
-          cd ${{ github.workspace }}
+          cp pacpac.lua main.lua
+          cp pacpac_conf.lua conf.lua
           zip -r game.love . -x ".*" ".github/*" "game.love" "dist/*"
 
       - name: Compile to HTML5 WebAssembly
-        # Compiles using the compatibility flag directly from the root workspace folder
-        run: |
-          cd ${{ github.workspace }}
-          love.js -c game.love dist --title "Sakwo's PacPac Web Game" --memory 33554432
+        # Compiles using your working single-threaded compatibility configuration
+        run: love.js -c game.love dist --title "Sakwo's PacPac Web Game" --memory 33554432
 
       - name: Setup GitHub Pages Environment
         uses: actions/configure-pages@v4
