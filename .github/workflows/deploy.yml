@@ -33,11 +33,12 @@ jobs:
         run: npm install -g love.js
 
       - name: Create .love Package
-        # Safely duplicates the non-standard files into the names Love2D requires before zipping
+        # Pulls the files safely out of the src subfolder, renames them, and packages them at the root level
         run: |
-          cp pacpac.lua main.lua
-          cp pacpac_conf.lua conf.lua
-          zip -r game.love . -x ".*" ".github/*" "game.love" "dist/*"
+          cp src/pacpac.lua ./main.lua
+          cp src/pacpac_conf.lua ./conf.lua
+          cp -r src/* .
+          zip -r game.love . -x ".*" ".github/*" "game.love" "dist/*" "src/*"
 
       - name: Compile to HTML5 WebAssembly
         # Compiles using your working single-threaded compatibility configuration
