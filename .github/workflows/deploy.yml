@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -19,7 +20,9 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -33,15 +36,15 @@ jobs:
         run: npm install -g love.js
 
       - name: Create .love Package
-        # Safely normalizes file naming conventions and zips asset types only
         run: |
-          cp pacpac.lua main.lua
-          cp pacpac_conf.lua conf.lua
-          zip game.love *.lua *.wav *.ttf *.txt
+          rm -f game.love
+          cd pacpac
+          zip -9 -r ../game.love .
 
       - name: Compile to HTML5 WebAssembly
-        # Compiles using your working single-threaded compatibility configuration
-        run: love.js -c game.love dist --title "Sakwo's PacPac Web Game" --memory 33554432
+        run: |
+          rm -rf dist
+          love.js -c game.love dist --title "Sakwo's PacPac Web Game" --memory 33554432
 
       - name: Setup GitHub Pages Environment
         uses: actions/configure-pages@v4
