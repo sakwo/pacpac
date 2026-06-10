@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          ref: master # This forces GitHub to download the actual game code files
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
