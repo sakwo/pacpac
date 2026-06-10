@@ -38,7 +38,8 @@ jobs:
 
       - name: Compile to HTML5 WebAssembly
         # Translates the game payload into web assets inside a folder called "dist"
-        run: love.js game.love dist --title "Sakwo's PacPac Web Game" --memory 33554432
+        # The -c flag switches love.js into single-threaded compatibility mode
+        run: love.js -c game.love dist --title "Sakwo's PacPac Web Game" --memory 33554432
 
       - name: Setup GitHub Pages Environment
         uses: actions/configure-pages@v4
